@@ -18,41 +18,68 @@ let wordsV2 = [
   "menial",
 ];
 
+// let fetchDictionary = (wordArray) => {
+//   let wordObj = {};
+//   for (let x = 0; x < wordArray.length; x++) {
+//     fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${wordArray[x]}`)
+//       .then((response) => response.json())
+//       .then((data) => {
+//         for (let x = 0; x < data.length; x++) {
+//           wordObj.word = data[x].word;
+//           dictionaryV2.push(wordObj);
+//           wordObj = {};
+//         }
+//         // data.forEach((w) => {
+//         //   wordObj.word = w.word;
+//         //   wordObj.definition = w.meanings;
+//         //   wordObj.scrambled = "";
+//         //   dictionaryV2.push(wordObj);
+//         //   wordObj = {};
+//         // });
+//       })
+//       .catch((error) => console.error(error));
+//   }
+// };
+
+// fetchDictionary(wordsV2);
+
 let dictionaryV2 = [];
 
-let fetchDictionary = (wordArray) => {
-  let wordObj = {};
-  for (let x = 0; x < wordArray.length; x++) {
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${wordArray[x]}`)
-      .then((response) => response.json())
-      .then((data) => {
-        for (let x = 0; x < data.length; x++) {
-          wordObj.word = data[x].word;
-          dictionaryV2.push(wordObj);
-          wordObj = {};
-        }
-        // data.forEach((w) => {
-        //   wordObj.word = w.word;
-        //   wordObj.definition = w.meanings;
-        //   wordObj.scrambled = "";
-        //   dictionaryV2.push(wordObj);
-        //   wordObj = {};
-        // });
-      })
-      .catch((error) => console.error(error));
+let fetchDictionary = async (wordArray) => {
+  try {
+    let promises = wordArray.map(async (word) => {
+      let response = await fetch(
+        `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+      );
+      if (!response.ok)
+        throw new Error(`Error fetching ${word}: ${response.statusText}`);
+      let data = await response.json();
+      return data.map((entry) => ({
+        word: entry.word,
+        definition: entry.meanings
+          .map((m) => m.definitions.map((d) => d.definition))
+          .flat(), // Extract definitions
+        scrambled: "", // Placeholder for scrambled word
+      }));
+    });
+
+    // Wait for all fetch operations to complete
+    let results = await Promise.all(promises);
+    dictionaryV2 = results.flat();
+    // console.log(dictionaryV2); // Logs the completed dictionary
+  } catch (error) {
+    console.error("Error fetching dictionary data:", error);
   }
 };
 
 fetchDictionary(wordsV2);
 
-//this works
 console.log(dictionaryV2);
 
 for (let x = 0; x < dictionaryV2.length; x++) {
-  //this does not work - nothing gets printed to the console
-  //it's probably an async await problem....
   console.log(dictionaryV2[x]);
 }
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 let words = [
@@ -180,6 +207,7 @@ let words = [
 
 let wordsList = [];
 
+//this will not console.log() anything
 for (let x = 0; x < words.length; x++) {
   wordsList.push(words[x].word);
 }
