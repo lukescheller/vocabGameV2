@@ -45,8 +45,14 @@ let fetchDictionary = (wordArray) => {
 
 fetchDictionary(wordsV2);
 
+//this works
 console.log(dictionaryV2);
 
+for (let x = 0; x < dictionaryV2.length; x++) {
+  //this does not work - nothing gets printed to the console
+  //it's probably an async await problem....
+  console.log(dictionaryV2[x]);
+}
 //////////////////////////////////////////////////////////////////////////////////////
 
 let words = [
